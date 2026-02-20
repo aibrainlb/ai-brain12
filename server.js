@@ -18,17 +18,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 let transporter = null;
 
 function createTransporter() {
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+      port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
-    console.log('✅ Email transporter ready');
+    console.log('✅ Email transporter ready (Brevo)');
   } else {
-    console.warn('⚠️  EMAIL_USER or EMAIL_PASSWORD not set — emails disabled');
+    console.warn('⚠️  SMTP_USER or SMTP_PASS not set — emails disabled');
   }
 }
 
@@ -60,11 +62,10 @@ app.post('/api/contact', async (req, res) => {
 
   console.log(`📬 New contact from ${name} <${email}>`);
 
-  // Send email if configured
   if (transporter) {
     try {
       await transporter.sendMail({
-        from: `"AI Brain Portfolio" <${process.env.EMAIL_USER}>`,
+        from: `"AI Brain Portfolio" <${process.env.SMTP_USER}>`,
         to: process.env.ADMIN_EMAIL || 'aibrain.lb@gmail.com',
         replyTo: email,
         subject: `📬 New Contact: ${name} — ${subject || 'Portfolio Inquiry'}`,
@@ -86,8 +87,10 @@ app.post('/api/contact', async (req, res) => {
       console.log('✅ Email sent to aibrain.lb@gmail.com');
     } catch (emailErr) {
       console.error('❌ Email send error:', emailErr.message);
-      // Still return success to the user — message was received
+      console.error('❌ Full error:', emailErr);
     }
+  } else {
+    console.warn('⚠️ No transporter — email not sent');
   }
 
   res.json({
