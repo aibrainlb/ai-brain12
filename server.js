@@ -86,8 +86,9 @@ app.post('/api/contact', async (req, res) => {
       });
       console.log('✅ Email sent to aibrain.lb@gmail.com');
     } catch (emailErr) {
-      console.error('❌ Email send error:', emailErr.message);
-      console.error('❌ Full error:', emailErr);
+     console.error('❌ Email send error:', emailErr.message);
+     console.error('❌ Error code:', emailErr.code);
+     console.error('❌ Error response:', emailErr.response);
     }
   } else {
     console.warn('⚠️ No transporter — email not sent');
