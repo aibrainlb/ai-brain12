@@ -84,10 +84,60 @@ app.post('/api/contact', async (req, res) => {
     console.log('✅ Email sent via Brevo API!');
   } catch (err) {
     console.error('❌ Brevo API error:', err.message);
+  
+    await sendThankYou({ name, email });
+    console.log('✅ Thank you email sent to user!');
   }
 
   res.json({ success: true, message: "Thank you! I'll get back to you soon." });
 });
+function sendThankYou({ name, email }) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      sender: { name: 'AI Brain Portfolio', email: 'aibrain.lb@gmail.com' },
+      to: [{ email: email, name: name }],
+      subject: `Thanks for reaching out, ${name}!`,
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 12px;">
+          <h2 style="color: #0066FF;">Thank you for contacting AI Brain! 🧠</h2>
+          <p>Hi <strong>${name}</strong>,</p>
+          <p>Thank you for reaching out! I have received your message and will get back to you within <strong>24-48 hours</strong>.</p>
+          <p>In the meantime, feel free to check out my work:</p>
+          <a href="https://ai-brain-cnqp.onrender.com" style="display:inline-block; padding: 12px 24px; background: linear-gradient(135deg, #0066FF, #00D9FF); color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">Visit AI Brain Portfolio</a>
+          <br><br>
+          <p style="color: #718096;">Best regards,<br><strong>AI Brain</strong></p>
+        </div>
+      `
+    });
+
+    const options = {
+      hostname: 'api.brevo.com',
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Length': Buffer.byteLength(body)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(data);
+        } else {
+          reject(new Error(`Brevo API error: ${res.statusCode} - ${data}`));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) return res.status(404).json({ success: false });
