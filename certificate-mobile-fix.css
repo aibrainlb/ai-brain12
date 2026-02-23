@@ -1,0 +1,52 @@
+/* ── Certificate Mobile Fix ── */
+@media (max-width: 768px) {
+    .certificate-card {
+        padding: 1.5rem !important;
+        border-radius: 16px !important;
+        margin: 0 1rem !important;
+    }
+
+    .certificate-card h3 {
+        font-size: 1.3rem !important;
+    }
+
+    .certificate-card p {
+        font-size: 0.95rem !important;
+        text-align: left !important;
+    }
+
+    .certificate-icon {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .certificate-icon i {
+        font-size: 1.8rem !important;
+    }
+
+    .certificate-meta {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .certificate-skills {
+        gap: 0.4rem !important;
+    }
+
+    .cert-skill {
+        font-size: 0.8rem !important;
+        padding: 0.3rem 0.8rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .certificate-card {
+        padding: 1.2rem !important;
+        margin: 0 0.5rem !important;
+    }
+
+    .certificate-card h3 {
+        font-size: 1.1rem !important;
+    }
+}
